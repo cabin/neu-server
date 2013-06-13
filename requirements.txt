@@ -1,0 +1,5 @@
+Flask==0.9
+Flask-RESTful==0.2.3
+Flask-SQLAlchemy==0.16
+Flask-Script==0.5.3
+SQLAlchemy==0.8.0
