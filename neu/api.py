@@ -1,5 +1,6 @@
 import functools
 
+from flask import request
 import flask.ext.restful
 from flask.ext.restful import abort, reqparse, Resource
 
@@ -21,18 +22,27 @@ def authenticate(fn):
     return wrapper
 
 
+class ArgumentFromJson(reqparse.Argument):
+    def __init__(self, *args, **kwargs):
+        kwargs['location'] = ('json', 'values')
+        super(ArgumentFromJson, self).__init__(*args, **kwargs)
+
+
 prospects = []  # XXX for deployment testing only; resets on server restart
 
 class ProspectList(Resource):
-    parser = reqparse.RequestParser()
+    parser = reqparse.RequestParser(ArgumentFromJson)
 
     def post(self):
         prospect = self.parser.parse_args()
-        prospects[len(prospects)] = prospect
+        prospect['ip'] = request.remote_addr
+        prospects.append(prospect)
         return prospect, 201
 
 ProspectList.parser.add_argument('name', required=True)
 ProspectList.parser.add_argument('email', required=True)
+ProspectList.parser.add_argument('zip')
+ProspectList.parser.add_argument('note')
 
 
 class AdminProspectList(Resource):
