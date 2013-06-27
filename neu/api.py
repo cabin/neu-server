@@ -16,15 +16,6 @@ def unauthorized_no_authenticate_header(response, realm):
 flask.ext.restful.unauthorized = unauthorized_no_authenticate_header
 
 
-def authenticate(fn):
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        if True:  # XXX
-            return fn(*args, **kwargs)
-        abort(401)
-    return wrapper
-
-
 class ArgumentFromJson(reqparse.Argument):
     def __init__(self, *args, **kwargs):
         kwargs['location'] = ('json', 'values')
@@ -57,14 +48,23 @@ ProspectList.parser.add_argument('zip', dest='zipcode')
 ProspectList.parser.add_argument('note')
 
 
-class AdminProspectList(Resource):
-    method_decorators = [authenticate]
-
-    @marshal_with(prospect_fields)
-    def get(self):
-        return Prospect.query.all()
+#def authenticate(fn):
+#    @functools.wraps(fn)
+#    def wrapper(*args, **kwargs):
+#        if True:  # XXX
+#            return fn(*args, **kwargs)
+#        abort(401)
+#    return wrapper
+#
+#
+#class AdminProspectList(Resource):
+#    method_decorators = [authenticate]
+#
+#    @marshal_with(prospect_fields)
+#    def get(self):
+#        return Prospect.query.all()
 
 
 def add_resources(api):
     api.add_resource(ProspectList, '/prospects')
-    api.add_resource(AdminProspectList, '/admin/prospects')
+    #api.add_resource(AdminProspectList, '/admin/prospects')
