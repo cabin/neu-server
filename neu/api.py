@@ -2,7 +2,10 @@ import functools
 
 from flask import request
 import flask.ext.restful
-from flask.ext.restful import abort, reqparse, Resource
+from flask.ext.restful import abort, fields, marshal_with, reqparse, Resource
+
+from neu import db
+from neu.models import Prospect
 
 
 # Monkeypatch unauthorized responses to not send a `WWW-Authenticate` header,
@@ -28,29 +31,38 @@ class ArgumentFromJson(reqparse.Argument):
         super(ArgumentFromJson, self).__init__(*args, **kwargs)
 
 
-prospects = []  # XXX for deployment testing only; resets on server restart
+prospect_fields = {
+    'name': fields.String,
+    'email': fields.String,
+    'zip': fields.String(attribute='zipcode'),
+    'note': fields.String,
+    'created_at': fields.DateTime,
+}
+
 
 class ProspectList(Resource):
     parser = reqparse.RequestParser(ArgumentFromJson)
 
+    @marshal_with(prospect_fields)
     def post(self):
-        prospect = self.parser.parse_args()
-        prospect['ip'] = request.remote_addr
-        prospects.append(prospect)
+        prospect = Prospect(**self.parser.parse_args())
+        prospect.ip_address = request.remote_addr
+        db.session.add(prospect)
+        db.session.commit()
         return prospect, 201
 
 ProspectList.parser.add_argument('name', required=True)
 ProspectList.parser.add_argument('email', required=True)
-ProspectList.parser.add_argument('zip')
+ProspectList.parser.add_argument('zip', dest='zipcode')
 ProspectList.parser.add_argument('note')
 
 
 class AdminProspectList(Resource):
     method_decorators = [authenticate]
-    parser = ProspectList.parser
 
+    @marshal_with(prospect_fields)
     def get(self):
-        return prospects
+        return Prospect.query.all()
 
 
 def add_resources(api):
