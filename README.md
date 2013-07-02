@@ -6,6 +6,7 @@ and [pip][] are installed:
     % mkvirtualenv -a $(pwd) -r requirements.txt neu
     % pip install -r dev-requirements.txt
     % alembic upgrade head
+    % ./manage.py runserver
 
 
 ## Migrations
