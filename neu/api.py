@@ -23,6 +23,7 @@ class ArgumentFromJson(reqparse.Argument):
 
 
 prospect_fields = {
+    'type': fields.String,
     'name': fields.String,
     'email': fields.String,
     'zip': fields.String(attribute='zipcode'),
@@ -42,6 +43,7 @@ class ProspectList(Resource):
         db.session.commit()
         return prospect, 201
 
+ProspectList.parser.add_argument('type')
 ProspectList.parser.add_argument('name', required=True)
 ProspectList.parser.add_argument('email', required=True)
 ProspectList.parser.add_argument('zip', dest='zipcode')

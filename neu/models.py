@@ -8,6 +8,7 @@ class Prospect(db.Model):
     }
 
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(16), nullable=True)
     name = db.Column(db.Unicode(256), nullable=False)
     email = db.Column(db.Unicode(256), nullable=False)
     zipcode = db.Column(db.String(16))
